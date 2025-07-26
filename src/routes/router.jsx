@@ -1,7 +1,8 @@
 import { createBrowserRouter } from "react-router";
-import App from "../App";
 import Dashboard from "../layout/Dashboard";
 import DashboardContend from "../pages/DashboardContend";
+import ChatBox from "../pages/ChatBoxPage";
+import ChatBoxPage from "../pages/ChatBoxPage";
 
 const router = createBrowserRouter([
   {
@@ -9,8 +10,12 @@ const router = createBrowserRouter([
     element: <Dashboard></Dashboard>,
     children: [
       {
-        path: "/l",
+        path: "/",
         element: <DashboardContend></DashboardContend>,
+      },
+      {
+        path: "/chatBox",
+        element: <ChatBoxPage></ChatBoxPage>
       },
       {
         path: "/laa",
