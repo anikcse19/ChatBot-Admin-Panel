@@ -10,8 +10,11 @@ import {
   MessageOutlined,
   BarChartOutlined,
   SettingOutlined,
+  GroupOutlined,
+  MessageTwoTone,
+  StepForwardOutlined,
 } from "@ant-design/icons";
-import { Badge, Collapse, Layout, Menu, Progress, Tooltip } from "antd";
+import { Badge, Collapse, Layout, Progress, Tooltip, Grid } from "antd";
 import {
   MdKeyboardDoubleArrowRight,
   MdOutlineKeyboardDoubleArrowLeft,
@@ -20,9 +23,10 @@ import { FaLayerGroup } from "react-icons/fa6";
 import { LuUserRoundCheck } from "react-icons/lu";
 import { CgDetailsMore } from "react-icons/cg";
 import { Link } from "react-router";
-
+import "../../App.css"
 const { Sider } = Layout;
 const { Panel } = Collapse;
+const { useBreakpoint } = Grid;
 
 const tasks = [
   { id: 1, label: "Signed Up", completed: true, link: "/signedUp" },
@@ -33,12 +37,14 @@ const tasks = [
   { id: 6, label: "Customize Widget", completed: false, link: "/signedUp" },
   { id: 7, label: "Create a Shortcut", completed: true, link: "/signedUp" },
   { id: 8, label: "Check out Inbox", completed: false, link: "/signedUp" },
-
   { id: 9, label: "Create a Property", completed: true, link: "/signedUp" },
 ];
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const screens = useBreakpoint();
+  const isMobile = !screens.lg; // true for md & sm
+
   const completedTasks = tasks.filter((t) => t.completed).length;
   const completionPercent = Math.round((completedTasks / tasks.length) * 100);
 
@@ -46,10 +52,19 @@ const Sidebar = () => {
     <Sider
       collapsible
       collapsed={collapsed}
+      onCollapse={(value) => setCollapsed(value)}
       trigger={null}
       width={240}
-      style={{ minHeight: "calc(100vh - 92px)" }}
-      className=" overflow-y-auto "
+      breakpoint="lg"
+      collapsedWidth={isMobile ? 60 : 80} // on mobile collapsed width = 0
+      style={{
+        minHeight: "calc(100vh - 92px)",
+        background: "#262626",
+        position: isMobile && !collapsed ? "fixed" : "relative",
+        zIndex: isMobile && !collapsed ? 999 : "auto",
+        transition: "all 0.4s ease-in-out",
+      }}
+      className="overflow-y-auto"
     >
       {/* Toggle Button */}
       <div
@@ -88,13 +103,11 @@ const Sidebar = () => {
         </button>
       </div>
 
-      {/* Top Icons */}
-
       {!collapsed ? (
-        <div className="text-white py-4 px-1 bg-[#262626] h-[480px] overflow-y-auto">
+        <div className="text-white py-4 px-1 bg-[#262626] h-[566px] no-scrollbar overflow-y-auto">
           <Collapse
             bordered={false}
-            defaultActiveKey={["1"]}
+            defaultActiveKey={["3"]}
             expandIconPosition="start"
             expandIcon={({ isActive }) => (
               <CaretRightOutlined
@@ -104,18 +117,15 @@ const Sidebar = () => {
             )}
             style={{ color: "white" }}
           >
-            {/* Groups Panel */}
             <Panel
               header={<span className="text-white font-bold">Groups</span>}
               key="1"
-              style={{ border: "none" }}
             >
               <button className="flex items-center gap-2 mt-2 text-sm bg-gray-700 px-3 py-1 rounded text-white">
                 <PlusOutlined /> New Group
               </button>
             </Panel>
 
-            {/* Direct Messages Panel */}
             <Panel
               header={
                 <span className="text-white font-bold">
@@ -123,7 +133,6 @@ const Sidebar = () => {
                 </span>
               }
               key="2"
-              style={{ border: "none" }}
             >
               <div className="flex items-center gap-2 mt-2 bg-gray-800 p-2 rounded text-white">
                 <div className="bg-pink-500 rounded-full w-6 h-6 text-center text-sm font-semibold">
@@ -134,13 +143,11 @@ const Sidebar = () => {
               </div>
             </Panel>
 
-            {/* Getting Started Panel */}
             <Panel
               header={
                 <span className="text-white font-bold">Getting Started</span>
               }
               key="3"
-              style={{ border: "none" }}
             >
               <div className="flex justify-between bg-gray-500 p-2 rounded-lg items-center mb-3">
                 <span className="font-semibold text-white">Progress</span>
@@ -149,7 +156,6 @@ const Sidebar = () => {
                   style={{ backgroundColor: "#00B96B" }}
                 />
               </div>
-
               <ul className="text-sm space-y-2">
                 {tasks.map((task, index) => (
                   <Link
@@ -157,15 +163,13 @@ const Sidebar = () => {
                     key={task.id}
                     className="flex items-center hover:bg-black p-2 rounded-lg justify-between"
                   >
-                    {/* Always White Text */}
                     <span className="text-white">{`${index + 1}. ${
                       task.label
                     }`}</span>
-                    {/* Conditional Icon Color */}
                     <span
-                      className={`${
+                      className={
                         task.completed ? "text-green-600" : "text-white"
-                      }`}
+                      }
                     >
                       {task.completed ? (
                         <CheckCircleOutlined className="text-green-400" />
@@ -178,39 +182,44 @@ const Sidebar = () => {
               </ul>
             </Panel>
           </Collapse>
+          <div className="px-4 py-3 text-white">
+            <div className="text-sm mb-2">
+              Setup Completion {completionPercent}%
+            </div>
+            <Progress
+              percent={completionPercent}
+              size="small"
+              strokeColor="#ffffff"
+            />
+          </div>
         </div>
       ) : (
-        <div className="flex flex-col text-white gap-4 items-center py-2 h-[480px] overflow-y-auto">
-          <Tooltip title="Home" placement="right">
-            <HomeOutlined className="text-white text-xl cursor-pointer" />
+        <div className="flex flex-col text-white gap-4 items-center py-2 h-[530px] overflow-y-auto">
+          <Tooltip title="Groups" placement="right">
+            <GroupOutlined className="text-white text-xl cursor-pointer" />
           </Tooltip>
-          <Tooltip title="Users" placement="right">
-            <UserOutlined className="text-white text-xl cursor-pointer" />
-          </Tooltip>
+
           <Tooltip title="Messages" placement="right">
-            <MessageOutlined className="text-white text-xl cursor-pointer" />{" "}
+            <MessageOutlined className="text-white text-xl cursor-pointer" />
           </Tooltip>
-          <Tooltip title="Reports" placement="right">
-            <BarChartOutlined className="text-white text-xl cursor-pointer" />{" "}
+          <Tooltip title="Started" placement="right">
+            <StepForwardOutlined className="text-white text-xl cursor-pointer" />
           </Tooltip>
           <Tooltip title="Settings" placement="right">
-            <SettingOutlined className="text-white text-xl cursor-pointer" />{" "}
+            <SettingOutlined className="text-white text-xl cursor-pointer" />
           </Tooltip>
-        </div>
-      )}
-      {/* Setup Progress (Show only when expanded) */}
-      {!collapsed && (
-        <div className="px-4 py-3 text-white">
-          <div className="text-sm mb-2">Setup Completion 23%</div>
-          <Progress percent={23} size="small" />
         </div>
       )}
 
-      {/* Notification & Profile - Bottom */}
-      <div className=" bg-gray-400 w-full flex flex-col text-white items-center gap-4">
-        <Badge color="" count={9} size="small">
+      {/* Bottom */}
+      <div
+        className={`${
+          collapsed ? "flex flex-col" : "flex"
+        } w-full justify-between px-6 py-2 text-white items-center border-t border-gray-400 gap-4`}
+      >
+        <Badge count={9} size="small">
           <BellOutlined
-            color="white"
+            style={{ color: "white" }}
             className="text-white text-xl cursor-pointer"
           />
         </Badge>
