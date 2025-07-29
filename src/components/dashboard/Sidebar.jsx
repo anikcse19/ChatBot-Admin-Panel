@@ -23,7 +23,7 @@ import { FaLayerGroup } from "react-icons/fa6";
 import { LuUserRoundCheck } from "react-icons/lu";
 import { CgDetailsMore } from "react-icons/cg";
 import { Link } from "react-router";
-import "../../App.css"
+import "../../App.css";
 const { Sider } = Layout;
 const { Panel } = Collapse;
 const { useBreakpoint } = Grid;
@@ -97,7 +97,7 @@ const Sidebar = () => {
           ) : (
             <MdOutlineKeyboardDoubleArrowLeft
               size={"1.5rem"}
-              className=" text-gray-400"
+              className=" text-gray-300"
             />
           )}
         </button>
