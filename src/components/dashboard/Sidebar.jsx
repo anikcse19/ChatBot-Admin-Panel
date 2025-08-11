@@ -87,7 +87,7 @@ const Sidebar = () => {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-white p-1 rounded transition"
+          className="text-white p-2 rounded transition"
         >
           {collapsed ? (
             <MdKeyboardDoubleArrowRight
