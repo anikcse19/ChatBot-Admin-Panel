@@ -1,5 +1,5 @@
 const ChatBox = ({ messages, currentUser }) => {
-  console.log("chat box",messages)
+  console.log("chat box", messages);
   return (
     <div
       style={{
@@ -60,7 +60,24 @@ const ChatBox = ({ messages, currentUser }) => {
                   maxWidth: "70%",
                 }}
               >
-                <strong>{msg.sender}</strong>: {msg.text}
+                <strong>{msg.sender}</strong>
+                {msg.text && <div>{msg.text}</div>}
+
+                {/* Show image if exists */}
+                {msg.imageUrl && (
+                  <div style={{ marginTop: "5px" }}>
+                    <img
+                      src={msg.imageUrl}
+                      alt="sent"
+                      style={{
+                        maxWidth: "200px",
+                        maxHeight: "200px",
+                        borderRadius: "8px",
+                        display: "block",
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           );

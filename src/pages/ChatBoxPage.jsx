@@ -18,7 +18,7 @@ import {
   makeAdminActive,
 } from "../api/chatApplicationAPI";
 import socket from "../socket";
-import "../App.css"
+import "../App.css";
 const { Sider } = Layout;
 
 const ChatBoxPage = () => {
@@ -198,7 +198,7 @@ const ChatBoxPage = () => {
       socket.off("bot_reply", handleBotReply);
     };
   }, [selectedSession?.sessionId]);
-  console.log("selected user", selectedUser)
+  console.log("selected user", selectedUser);
 
   console.log("selected session,", selectedSession);
   return (
@@ -291,7 +291,13 @@ const ChatBoxPage = () => {
                 <div
                   onClick={() => handleSelectSession(conv.sessionId)}
                   key={conv.sessionId}
-                  className="hover:bg-blue-100 p-2 flex items-start justify-between  rounded-lg text-center mb-5 text-sm font-medium cursor-pointer"
+                  className={`hover:bg-blue-100 p-2 flex items-start justify-between rounded-lg text-center mb-5 text-sm font-medium cursor-pointer
+      ${
+        selectedSession?.sessionId === conv.sessionId
+          ? "bg-blue-200"
+          : "bg-white"
+      }
+    `}
                 >
                   <div className=" flex items-center gap-3">
                     <img
