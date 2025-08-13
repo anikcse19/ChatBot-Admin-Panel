@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { conversationData } from "./conversationData";
 import ChatBox from "../components/chatbox/ChatBox";
 import { Card, Layout } from "antd";
@@ -11,6 +11,7 @@ import { Content } from "antd/es/layout/layout";
 import { IoMailOutline } from "react-icons/io5";
 import { BiUser } from "react-icons/bi";
 import {
+  adminImageReply,
   adminReply,
   getAllConversation,
   getConversation,
@@ -28,7 +29,10 @@ const ChatBoxPage = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
-
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null); // file object
+  const [dragOver, setDragOver] = useState(false);
+  const dropRef = useRef(null);
   // Fetch all conversations
   useEffect(() => {
     const fetchConversations = async () => {
@@ -102,36 +106,96 @@ const ChatBoxPage = () => {
 
   // Handle sending admin message
   const handleSend = async () => {
-    if (!message.trim() || !selectedSession) return;
+    if (!message && !imageFile) return;
+    console.log("di", imageFile);
+    if (!selectedSession) return;
 
     const sessionId = selectedSession.sessionId;
-    const adminMsg = { sender: "admin", text: message, timestamp: new Date() };
 
     try {
-      await adminReply({ sessionId, message: adminMsg });
+      // Send text message
+      if (message) {
+        const textMsg = {
+          sender: "admin",
+          type: "text",
+          text: message,
+          timestamp: new Date(),
+        };
 
-      setMessages((prev) => [...prev, adminMsg]);
+        await adminReply({ sessionId, message: textMsg });
 
-      setConversations((prev) => {
-        const updated = prev.map((conv) =>
-          conv.sessionId === sessionId
-            ? { ...conv, messages: [...conv.messages, adminMsg] }
-            : conv
-        );
-        return [...updated].sort((a, b) => {
-          const aTime = new Date(a.messages[a.messages.length - 1].timestamp);
-          const bTime = new Date(b.messages[b.messages.length - 1].timestamp);
-          return bTime - aTime;
-        });
-      });
+        setMessages((prev) => [...prev, textMsg]);
+        socket.emit("admin-reply", { sessionId, text: message });
+        setMessage("");
+      }
 
-      socket.emit("admin-reply", { sessionId, text: message });
-      setMessage("");
+      // Send image message
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const imageData = reader.result;
+          console.log("imageData", imageData); // base64
+          const res = await adminImageReply({
+            sessionId,
+            imageData,
+            fileName: imageFile.name,
+          });
+          console.log(res);
+          if (res.data?.imageUrl) {
+            const imgMsg = {
+              sender: "admin",
+              type: "image",
+              imageUrl: res.data.imageUrl,
+              timestamp: new Date(),
+            };
+
+            setMessages((prev) => [...prev, imgMsg]);
+            socket.emit("admin-reply", {
+              sessionId,
+              imageUrl: res.data.imageUrl,
+            });
+
+            // Clear image state after send
+            setImageFile(null);
+            setSelectedImage(null);
+          }
+        };
+        reader.readAsDataURL(imageFile);
+      }
     } catch (error) {
       console.error("Error sending admin reply:", error);
     }
   };
 
+  const handleImageSelect = (file) => {
+    if (!file) return;
+    setImageFile(file);
+    setSelectedImage(URL.createObjectURL(file));
+  };
+
+  // Drag and Drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropRef.current.style.borderColor = "#3b82f6"; // blue
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropRef.current.style.borderColor = "#9ca3af"; // gray-400
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropRef.current.style.borderColor = "#9ca3af";
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      handleImageSelect(file);
+    }
+  };
   // Socket listeners
   useEffect(() => {
     if (!selectedSession?.sessionId) return;
@@ -142,6 +206,7 @@ const ChatBoxPage = () => {
       const newMsg = {
         sender: "user",
         text: data.message,
+        imageUrl: data.imageUrl,
         timestamp: new Date(),
       };
 
@@ -198,9 +263,7 @@ const ChatBoxPage = () => {
       socket.off("bot_reply", handleBotReply);
     };
   }, [selectedSession?.sessionId]);
-  console.log("selected user", selectedUser);
 
-  console.log("selected session,", selectedSession);
   return (
     <Layout
       style={{ display: "flex", gap: "16px", minHeight: "calc(100vh - 92px)" }}
@@ -291,13 +354,11 @@ const ChatBoxPage = () => {
                 <div
                   onClick={() => handleSelectSession(conv.sessionId)}
                   key={conv.sessionId}
-                  className={`hover:bg-blue-100 p-2 flex items-start justify-between rounded-lg text-center mb-5 text-sm font-medium cursor-pointer
-      ${
-        selectedSession?.sessionId === conv.sessionId
-          ? "bg-blue-200"
-          : "bg-white"
-      }
-    `}
+                  className={`hover:bg-blue-100 p-2 flex items-start justify-between rounded-lg text-center mb-5 text-sm font-medium cursor-pointer ${
+                    selectedSession?.sessionId === conv.sessionId
+                      ? "bg-blue-200"
+                      : "bg-white"
+                  }`}
                 >
                   <div className=" flex items-center gap-3">
                     <img
@@ -387,26 +448,80 @@ const ChatBoxPage = () => {
               {selectedSession ? (
                 <>
                   <ChatBox messages={messages} currentUser="admin" />
-                  <div className="border rounded-b-lg border-gray-300 mt-4 flex">
-                    <input
-                      className="rounded-b-lg"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      style={{ flex: 1, padding: "12px" }}
-                      placeholder="Type admin reply..."
-                    />
-                    <button
-                      onClick={handleSend}
-                      disabled={!selectedSession.isAdminOnline}
-                      className={`text-white rounded-b-lg ${
-                        selectedSession.isAdminOnline
-                          ? "bg-blue-500"
-                          : "bg-gray-400 cursor-not-allowed"
-                      }`}
-                      style={{ padding: "8px 16px" }}
-                    >
-                      Reply
-                    </button>
+                  <div
+                    ref={dropRef}
+                    className={`border border-dashed p-4 rounded relative ${
+                      dragOver ? "border-blue-500" : "border-white"
+                    }`}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      handleDrop(e);
+                    }}
+                  >
+                    {/* Image preview */}
+                    {selectedImage && (
+                      <div className="p-2 relative ">
+                        <img
+                          src={selectedImage}
+                          alt="preview"
+                          className="max-h-24 rounded border mb-2"
+                        />
+                        <button
+                          onClick={() => {
+                            setSelectedImage(null);
+                            setImageFile(null);
+                            setDragOver(false);
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white px-2 rounded cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="border rounded-b-lg border-gray-300 mt-4 flex">
+                      <input
+                        className="rounded-b-lg"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        style={{ flex: 1, padding: "12px" }}
+                        placeholder="Type admin reply..."
+                      />
+                      <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded">
+                        📷
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageSelect(e.target.files[0])}
+                          className="hidden"
+                        />
+                      </label>
+                      <button
+                        onClick={handleSend}
+                        disabled={!selectedSession?.isAdminOnline}
+                        className={`text-white rounded-b-lg ${
+                          selectedSession?.isAdminOnline
+                            ? "bg-blue-500"
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                        style={{ padding: "8px 16px" }}
+                      >
+                        Reply
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
