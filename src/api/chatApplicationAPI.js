@@ -1,7 +1,7 @@
 // api.js
-import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:5000/api" });
+import { API } from "../config/baseUrl";
+
 export const createUser = (data) => API.post("/users/create", data);
 export const getSingleUser = (userId) => API.get(`/users/singleUser/${userId}`);
 export const sendMessage = (data) => API.post("/conversation/message", data); // or your route name

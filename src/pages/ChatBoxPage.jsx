@@ -2,13 +2,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { conversationData } from "./conversationData";
 import ChatBox from "../components/chatbox/ChatBox";
-import { Card, Layout } from "antd";
+import { Button, Card, Layout, Modal } from "antd";
 import {
   MdKeyboardDoubleArrowRight,
   MdOutlineKeyboardDoubleArrowLeft,
 } from "react-icons/md";
 import { Content } from "antd/es/layout/layout";
-import { IoMailOutline } from "react-icons/io5";
+import { IoMailOutline, IoTicketSharp } from "react-icons/io5";
 import { BiUser } from "react-icons/bi";
 import {
   adminImageReply,
@@ -20,12 +20,15 @@ import {
 } from "../api/chatApplicationAPI";
 import socket from "../socket";
 import "../App.css";
+import { useForm } from "react-hook-form";
+import CreateTicketModal from "../components/chatbox/CreateTicketModal";
 const { Sider } = Layout;
 
 const ChatBoxPage = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [open, setOpen] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -33,6 +36,7 @@ const ChatBoxPage = () => {
   const [imageFile, setImageFile] = useState(null); // file object
   const [dragOver, setDragOver] = useState(false);
   const dropRef = useRef(null);
+
   // Fetch all conversations
   useEffect(() => {
     const fetchConversations = async () => {
@@ -107,7 +111,6 @@ const ChatBoxPage = () => {
   // Handle sending admin message
   const handleSend = async () => {
     if (!message && !imageFile) return;
-    console.log("di", imageFile);
     if (!selectedSession) return;
 
     const sessionId = selectedSession.sessionId;
@@ -174,17 +177,6 @@ const ChatBoxPage = () => {
   };
 
   // Drag and Drop handlers
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropRef.current.style.borderColor = "#3b82f6"; // blue
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dropRef.current.style.borderColor = "#9ca3af"; // gray-400
-  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -263,6 +255,8 @@ const ChatBoxPage = () => {
       socket.off("bot_reply", handleBotReply);
     };
   }, [selectedSession?.sessionId]);
+  // create ticket
+
 
   return (
     <Layout
@@ -439,8 +433,6 @@ const ChatBoxPage = () => {
                     </span>
                   </div>
                 )}
-                {/* <button className=" lg:hidden border p-1 text-lg"> 
-                  <BiUser></BiUser></button> */}
               </div>
             </div>
 
@@ -532,27 +524,48 @@ const ChatBoxPage = () => {
             </div>
           </div>
           {selectedSession && (
-            <Card
-              style={{
-                maxHeight: "300px",
-                marginTop: "46px",
-                // background: "#f7f7f9",
-                border: "1px solid #d9d9d9",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              }}
-            >
-              <img src="user.jpg" alt="" className=" w-40 h-40 rounded-full" />
-              <h2 className=" text-2xl font-semibold text-center text-green-600">
-                {selectedUser?.name}
-              </h2>
-              <h2 className=" text-center flex gap-2 mt-2 text-sm text-gray-600  justify-center items-center">
-                <IoMailOutline style={{ color: "blue" }} size={"1.3rem"} />{" "}
-                {selectedUser?.email}
-              </h2>
-            </Card>
+            <div className=" mt-12 space-y-3 ">
+              <Button
+                onClick={() => setOpen(true)}
+                color="blue"
+                variant="filled"
+                size="large"
+              >
+                <IoTicketSharp /> Create Ticket
+              </Button>
+
+              <Card
+                style={{
+                  maxHeight: "300px",
+
+                  // background: "#f7f7f9",
+                  border: "1px solid #d9d9d9",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                }}
+              >
+                <img
+                  src="user.jpg"
+                  alt=""
+                  className=" w-40 h-40 rounded-full"
+                />
+                <h2 className=" text-2xl font-semibold text-center text-green-600">
+                  {selectedUser?.name}
+                </h2>
+                <h2 className=" text-center flex gap-2 mt-2 text-sm text-gray-600  justify-center items-center">
+                  <IoMailOutline style={{ color: "blue" }} size={"1.3rem"} />{" "}
+                  {selectedUser?.email}
+                </h2>
+              </Card>
+            </div>
           )}
         </Content>
       </Layout>
+      <CreateTicketModal
+        open={open}
+        setOpen={setOpen}
+        userId={selectedUser?._id}
+        sessionId={selectedSession?.sessionId}
+      />
     </Layout>
   );
 };

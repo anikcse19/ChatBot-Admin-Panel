@@ -3,6 +3,7 @@ import Dashboard from "../layout/Dashboard";
 import DashboardContend from "../pages/DashboardContend";
 import ChatBox from "../pages/ChatBoxPage";
 import ChatBoxPage from "../pages/ChatBoxPage";
+import TicketListPage from "../pages/TicketListPage";
 
 const router = createBrowserRouter([
   {
@@ -15,7 +16,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/chatBox",
-        element: <ChatBoxPage></ChatBoxPage>
+        element: <ChatBoxPage></ChatBoxPage>,
+      },
+      {
+        path: "/ticketList",
+        element: <TicketListPage></TicketListPage>,
       },
       {
         path: "/laa",
