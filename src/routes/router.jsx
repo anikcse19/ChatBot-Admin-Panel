@@ -1,14 +1,21 @@
 import { createBrowserRouter } from "react-router";
 import Dashboard from "../layout/Dashboard";
 import DashboardContend from "../pages/DashboardContend";
-import ChatBox from "../pages/ChatBoxPage";
+
 import ChatBoxPage from "../pages/ChatBoxPage";
 import TicketListPage from "../pages/TicketListPage";
+import Signup from "../pages/Signup";
+import Login from "../pages/Login";
+import AdminRoute from "./AdminRoutes";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard></Dashboard>,
+    element: (
+      <AdminRoute>
+        <Dashboard></Dashboard>
+      </AdminRoute>
+    ),
     children: [
       {
         path: "/",
@@ -22,11 +29,15 @@ const router = createBrowserRouter([
         path: "/ticketList",
         element: <TicketListPage></TicketListPage>,
       },
-      {
-        path: "/laa",
-        element: <div>hello</div>,
-      },
     ],
+  },
+  {
+    path: "/signup",
+    element: <Signup></Signup>,
+  },
+  {
+    path: "/login",
+    element: <Login></Login>,
   },
 ]);
 export default router;

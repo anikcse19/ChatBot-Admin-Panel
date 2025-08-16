@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SearchOutlined,
   BellOutlined,
@@ -11,19 +11,30 @@ import {
   BookOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Input, Badge, Avatar } from "antd";
-import { Link, NavLink, useLocation } from "react-router";
+import { Input, Badge, Avatar, Button } from "antd";
+import { Link, NavLink } from "react-router";
+
+import { getCurrentAdmin, signOut } from "../../utils/auth";
 
 const Navbar = () => {
-  const location= useLocation();
-   const menuItems = [
-     { path: "/", icon: <HomeOutlined />, label: "Home" },
-     { path: "/inbox", icon: <InboxOutlined />, label: "Inbox" },
-     { path: "/contact", icon: <ContactsOutlined />, label: "Contacts" },
-     { path: "/book", icon: <BookOutlined />, label: "Book" },
-     { path: "/setting", icon: <SettingOutlined />, label: "Settings" },
-   ];
-   console.log(location.pathname)
+  const [user, setUser] = useState(null);
+  const menuItems = [
+    { path: "/", icon: <HomeOutlined />, label: "Home" },
+    { path: "/inbox", icon: <InboxOutlined />, label: "Inbox" },
+    { path: "/contact", icon: <ContactsOutlined />, label: "Contacts" },
+    { path: "/book", icon: <BookOutlined />, label: "Book" },
+    { path: "/setting", icon: <SettingOutlined />, label: "Settings" },
+  ];
+  //  const role = getUserRole();
+
+  useEffect(() => {
+    const fetchUser =async () => {
+      const role = getCurrentAdmin();
+      setUser(role);
+    };
+    fetchUser();
+  }, []);
+console.log("admin", user);
   return (
     <div className="flex justify-between items-center bg-[#f7f7f9]  px-6 py-2.5 ">
       {/* Left Side Icons */}
@@ -37,7 +48,9 @@ const Navbar = () => {
               textDecoration: "none",
             })}
           >
-            <li className="hover:bg-gray-200 text-xl py-1 px-2 rounded">{item.icon}</li>
+            <li className="hover:bg-gray-200 text-xl py-1 px-2 rounded">
+              {item.icon}
+            </li>
           </NavLink>
         ))}
       </ul>
@@ -49,12 +62,17 @@ const Navbar = () => {
         <Badge count={9} size="small">
           <BellOutlined className="text-xl text-gray-600 cursor-pointer" />
         </Badge>
-
+        {user ? (
+          <Button onClick={signOut} color="blue" variant="filled">
+            Logout
+          </Button>
+        ) : (
+          <Avatar
+            className="bg-blue-500 cursor-pointer"
+            icon={<UserOutlined />}
+          />
+        )}
         {/* Profile */}
-        <Avatar
-          className="bg-blue-500 cursor-pointer"
-          icon={<UserOutlined />}
-        />
       </div>
     </div>
   );
