@@ -42,7 +42,7 @@ const ChatBoxPage = () => {
     const fetchConversations = async () => {
       try {
         const res = await getAllConversation();
-        console.log(res)
+        console.log(res);
         setConversations(res?.data?.conversations);
       } catch (err) {
         console.error("Error loading conversations:", err);
@@ -51,10 +51,12 @@ const ChatBoxPage = () => {
 
     fetchConversations();
   }, []);
-console.log(conversations)
+  console.log(conversations);
   // Select session
   const handleSelectSession = async (sessionId) => {
-    const selected = conversations.find((conv) => conv?.sessionId === sessionId);
+    const selected = conversations.find(
+      (conv) => conv?.sessionId === sessionId
+    );
     setSelectedSession(selected);
     // console.log("select user",selectedSession)
     // Load conversation messages
@@ -258,7 +260,6 @@ console.log(conversations)
   }, [selectedSession?.sessionId]);
   // create ticket
 
-
   return (
     <Layout
       style={{ display: "flex", gap: "16px", minHeight: "calc(100vh - 92px)" }}
@@ -349,7 +350,7 @@ console.log(conversations)
                 <div
                   onClick={() => handleSelectSession(conv.sessionId)}
                   key={conv.sessionId}
-                  className={`hover:bg-blue-100 p-2 flex items-start justify-between rounded-lg text-center mb-5 text-sm font-medium cursor-pointer ${
+                  className={`hover:bg-blue-100 p-1 flex items-start justify-between rounded-lg text-center mb-5 text-sm font-medium cursor-pointer ${
                     selectedSession?.sessionId === conv.sessionId
                       ? "bg-blue-200"
                       : "bg-white"
