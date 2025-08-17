@@ -1,11 +1,13 @@
+/* eslint-disable no-unused-vars */
 import { Modal } from "antd";
 import { useForm } from "react-hook-form";
 import { apiKey } from "../../config/baseUrl";
 import { createTicket } from "../../api/ticketApi";
 import { toast } from "sonner";
 import socket from "../../socket";
-import { adminReply } from "../../api/chatApplicationAPI";
+import { adminReply, getSingleUser } from "../../api/chatApplicationAPI";
 import { useState } from "react";
+import { getCurrentAdmin } from "../../utils/auth";
 
 export default function CreateTicketModal({
   open,
@@ -23,9 +25,9 @@ export default function CreateTicketModal({
       description: "",
     },
   });
+  const currentUser = getCurrentAdmin();
 
   const onSubmit = async (data) => {
-    console.log("hi");
     try {
       let uploadedImages = "";
 
@@ -47,11 +49,12 @@ export default function CreateTicketModal({
           }
         }
       }
-
+      const user = await getSingleUser(currentUser.id);
+console.log("ticket user",user)
       const ticketData = {
         ...data,
         userId,
-        createdBy: "687f17eb3c54c79b362fa406",
+        createdBy: user?.data?.user?._id,
         linkedChatId: sessionId,
         attachments: uploadedImages,
       };

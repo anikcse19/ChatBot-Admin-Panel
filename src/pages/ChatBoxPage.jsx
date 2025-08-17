@@ -42,7 +42,8 @@ const ChatBoxPage = () => {
     const fetchConversations = async () => {
       try {
         const res = await getAllConversation();
-        setConversations(res.data.conversation);
+        console.log(res)
+        setConversations(res?.data?.conversations);
       } catch (err) {
         console.error("Error loading conversations:", err);
       }
@@ -50,10 +51,10 @@ const ChatBoxPage = () => {
 
     fetchConversations();
   }, []);
-
+console.log(conversations)
   // Select session
   const handleSelectSession = async (sessionId) => {
-    const selected = conversations.find((conv) => conv.sessionId === sessionId);
+    const selected = conversations.find((conv) => conv?.sessionId === sessionId);
     setSelectedSession(selected);
     // console.log("select user",selectedSession)
     // Load conversation messages
@@ -61,9 +62,9 @@ const ChatBoxPage = () => {
       const res = await getConversation(sessionId);
 
       if (res.data.conversation) {
-        setMessages(res.data.conversation.messages);
+        setMessages(res?.data?.conversation?.messages);
       }
-      const data = await getSingleUser(res.data.conversation.userId);
+      const data = await getSingleUser(res?.data?.conversation?.userId);
       if (data?.data?.user) {
         setSelectedUser(data?.data?.user);
       }
@@ -88,7 +89,7 @@ const ChatBoxPage = () => {
 
       if (res.status === 200) {
         const updated = conversations.map((conv) =>
-          conv.sessionId === sessionId
+          conv?.sessionId === sessionId
             ? { ...conv, isAdminOnline: newStatus }
             : conv
         );
@@ -113,7 +114,7 @@ const ChatBoxPage = () => {
     if (!message && !imageFile) return;
     if (!selectedSession) return;
 
-    const sessionId = selectedSession.sessionId;
+    const sessionId = selectedSession?.sessionId;
 
     try {
       // Send text message
@@ -141,14 +142,14 @@ const ChatBoxPage = () => {
           const res = await adminImageReply({
             sessionId,
             imageData,
-            fileName: imageFile.name,
+            fileName: imageFile?.name,
           });
           console.log(res);
           if (res.data?.imageUrl) {
             const imgMsg = {
               sender: "admin",
               type: "image",
-              imageUrl: res.data.imageUrl,
+              imageUrl: res?.data?.imageUrl,
               timestamp: new Date(),
             };
 
@@ -192,7 +193,7 @@ const ChatBoxPage = () => {
   useEffect(() => {
     if (!selectedSession?.sessionId) return;
 
-    const sessionId = selectedSession.sessionId;
+    const sessionId = selectedSession?.sessionId;
 
     const handleUserMsg = (data) => {
       const newMsg = {
@@ -202,7 +203,7 @@ const ChatBoxPage = () => {
         timestamp: new Date(),
       };
 
-      if (data.sessionId === sessionId) {
+      if (data?.sessionId === sessionId) {
         setMessages((prev) => [...prev, newMsg]);
       }
 
