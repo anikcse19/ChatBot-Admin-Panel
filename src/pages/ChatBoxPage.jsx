@@ -22,6 +22,7 @@ import socket from "../socket";
 import "../App.css";
 import { useForm } from "react-hook-form";
 import CreateTicketModal from "../components/chatbox/CreateTicketModal";
+import { getCurrentAdmin } from "../utils/auth";
 const { Sider } = Layout;
 
 const ChatBoxPage = () => {
@@ -36,7 +37,7 @@ const ChatBoxPage = () => {
   const [imageFile, setImageFile] = useState(null); // file object
   const [dragOver, setDragOver] = useState(false);
   const dropRef = useRef(null);
-
+  const currentAdmin = getCurrentAdmin();
   // Fetch all conversations
   useEffect(() => {
     const fetchConversations = async () => {
@@ -51,7 +52,6 @@ const ChatBoxPage = () => {
 
     fetchConversations();
   }, []);
-  console.log(conversations);
   // Select session
   const handleSelectSession = async (sessionId) => {
     const selected = conversations.find(
@@ -117,7 +117,7 @@ const ChatBoxPage = () => {
     if (!selectedSession) return;
 
     const sessionId = selectedSession?.sessionId;
-
+    const repliedBy = currentAdmin?.id;
     try {
       // Send text message
       if (message) {
@@ -125,13 +125,14 @@ const ChatBoxPage = () => {
           sender: "admin",
           type: "text",
           text: message,
+          repliedBy,
           timestamp: new Date(),
         };
 
         await adminReply({ sessionId, message: textMsg });
 
         setMessages((prev) => [...prev, textMsg]);
-        socket.emit("admin-reply", { sessionId, text: message });
+        socket.emit("admin-reply", { sessionId, text: message, repliedBy });
         setMessage("");
       }
 
@@ -144,6 +145,7 @@ const ChatBoxPage = () => {
           const res = await adminImageReply({
             sessionId,
             imageData,
+            repliedBy,
             fileName: imageFile?.name,
           });
           console.log(res);

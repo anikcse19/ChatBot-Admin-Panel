@@ -50,7 +50,7 @@ export default function CreateTicketModal({
         }
       }
       const user = await getSingleUser(currentUser.id);
-console.log("ticket user",user)
+      console.log("ticket user", user);
       const ticketData = {
         ...data,
         userId,

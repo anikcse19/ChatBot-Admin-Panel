@@ -14,7 +14,7 @@ const TicketListPage = () => {
     try {
       setLoading(true);
       const response = await getAllTickets();
-      setTickets(response.data.tickets); // assuming API returns { tickets: [...] }
+      setTickets(response?.data?.tickets); // assuming API returns { tickets: [...] }
     } catch (error) {
       console.error("Error fetching tickets:", error);
     } finally {
