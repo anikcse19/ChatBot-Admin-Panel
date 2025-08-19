@@ -32,7 +32,7 @@ const tasks = [
   { id: 1, label: "Signed Up", completed: true, link: "/signedUp" },
   { id: 2, label: "Chat Box", completed: false, link: "/chatBox" },
   { id: 3, label: "Ticket List", completed: false, link: "/ticketList" },
-  { id: 4, label: "Invite Members", completed: false, link: "/signedUp" },
+  { id: 4, label: "Team Members", completed: false, link: "/teamMembers" },
   { id: 12, label: "Dashboard Tour", completed: true, link: "/signedUp" },
   { id: 5, label: "Watch Demo", completed: false, link: "/signedUp" },
   { id: 6, label: "Customize Widget", completed: false, link: "/signedUp" },

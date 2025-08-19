@@ -7,6 +7,7 @@ import TicketListPage from "../pages/TicketListPage";
 import Signup from "../pages/Signup";
 import Login from "../pages/Login";
 import AdminRoute from "./AdminRoutes";
+import TeamMemberList from "../pages/TeamMemberList";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/ticketList",
         element: <TicketListPage></TicketListPage>,
+      },
+      {
+        path: "/teamMembers",
+        element: <TeamMemberList></TeamMemberList>,
       },
     ],
   },

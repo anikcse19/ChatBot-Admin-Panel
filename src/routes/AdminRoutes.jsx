@@ -5,13 +5,13 @@ import { getUserRole } from "../utils/auth";
 const AdminRoute = ({ children }) => {
  const location = useLocation();
   const role = getUserRole();
-  console.log("role",role)
+ 
   const token = localStorage.getItem("token");
   console.log("token",token)
 
-  if (!token || role !== "admin") {
-   return <Navigate to="/login" state={{ from: location }} replace></Navigate>
-  }
+if (!token || !["admin", "agent", "sub-admin"].includes(role)) {
+  return <Navigate to="/login" state={{ from: location }} replace />;
+}
 
   return children;
 };
