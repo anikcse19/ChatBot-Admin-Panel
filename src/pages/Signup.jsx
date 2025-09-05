@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Link, useNavigate } from "react-router";
 
 const Signup = () => {
-    const navigate= useNavigate()
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -19,19 +19,22 @@ const Signup = () => {
     try {
       const payload = { ...data, role: "admin" };
       const res = await createAdmin(payload);
-      if(res)
-      {
-        toast.success(res?.data?.message || "Admin is created")
+      if (res) {
+        toast.success(res?.data?.message || "Admin is created");
         reset();
-        navigate("/login");
+        console.log("code", res?.user?._id);
+        navigate("/integration-script", {
+          state: {
+            newAdminId: res?.data?.user?._id,
+            name: res?.data?.user?.name,
+          },
+        });
       }
-    } catch(error) {
-        toast.error(
-          error.response?.data?.error || "Something went wrong. Try again."
-        );
+    } catch (error) {
+      toast.error(
+        error.response?.data?.error || "Something went wrong. Try again."
+      );
     }
-
-    
   };
 
   return (

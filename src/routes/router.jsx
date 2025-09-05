@@ -8,6 +8,7 @@ import Signup from "../pages/Signup";
 import Login from "../pages/Login";
 import AdminRoute from "./AdminRoutes";
 import TeamMemberList from "../pages/TeamMemberList";
+import IntegrationPage from "../pages/IntegrationScriptPage";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login></Login>,
+  },
+  {
+    path: "/integration-script",
+    element: <IntegrationPage></IntegrationPage>,
   },
 ]);
 export default router;
